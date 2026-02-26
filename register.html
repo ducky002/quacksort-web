@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register for Event - QuackSort</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body class="page-register">
+    <div class="background-blob"></div>
+    <div class="web-container">
+        <header class="web-nav">
+            <a href="index.html" class="logo-area" style="text-decoration: none;">
+                <img src="QuackSort.png" alt="Q" class="logo-icon">
+                <span class="logo-text">QuackSort</span>
+            </a>
+        </header>
+
+        <main class="form-section">
+            <div class="glass-form-card">
+                <h1 class="form-title">Join the Event</h1>
+                <p class="form-subtitle">Register to get identified in the photos automatically.</p>
+
+                <form id="registration-form">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" placeholder="John Doe" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="invite_code">Invite Code (6 digits)</label>
+                        <input type="text" id="invite_code" name="invite_code" placeholder="000000" maxlength="6"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="face_photo">Your Face Photo</label>
+                        <div class="file-upload-area" id="drop-zone">
+                            <span class="upload-icon">📸</span>
+                            <p>Click or drag your selfie here</p>
+                            <input type="file" id="face_photo" name="face_photo" accept="image/*" required
+                                style="display: none;">
+                        </div>
+                        <div id="file-preview" class="file-preview" style="display: none;">
+                            <img id="preview-img" src="" alt="Face Preview">
+                            <button type="button" id="remove-file" class="btn-remove">✕</button>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submit-btn" class="btn primary full-width">Register Now</button>
+                </form>
+
+                <div id="status-message" class="status-message"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

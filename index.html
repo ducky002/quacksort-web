@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuackSort - Smart Photo Sorting</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="background-blob"></div>
+    <div class="web-container">
+        <header class="web-nav">
+            <div class="logo-area">
+                <img src="QuackSort.png" alt="Q" class="logo-icon">
+                <span class="logo-text">QuackSort</span>
+            </div>
+            <div class="nav-right">
+                <a href="register.html" class="nav-link register-link">Register for Event</a>
+            </div>
+        </header>
+
+        <main class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">Organize your memories with <span class="highlight">AI</span>.</h1>
+                <p class="hero-subtitle">The most advanced face recognition photo sorting app. Fast, private, and smart.
+                </p>
+
+                <div class="hero-actions">
+                    <button id="btn-receive-photos" class="btn primary large">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                        Receive Photos
+                    </button>
+                    <a href="#" class="btn secondary large">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" y1="3" x2="12" y2="15" />
+                        </svg>
+                        Download App
+                    </a>
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <div class="mockup-frame">
+                    <img src="desktop-mockup.png" alt="QuackSort Interface" class="mockup-img">
+                </div>
+            </div>
+        </main>
+
+        <section id="receive-section" class="receive-section" style="display: none;">
+            <div class="modal-card">
+                <h2>Enter Session Code</h2>
+                <p>Paste the 6-digit code provided by the sender to browse photos.</p>
+                <div class="input-group">
+                    <input type="text" id="receive-code" placeholder="000 000" maxlength="6">
+                    <button class="btn primary">Connect</button>
+                </div>
+                <button class="btn-text btn-close-receive">Cancel</button>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
