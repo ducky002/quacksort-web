@@ -63,15 +63,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                         // If data was sent as base64 (for images)
                         if (data.isBase64 && typeof responseData === 'string') {
                             try {
+                                console.log(`Decoding base64 string of length: ${responseData.length}`);
                                 const binaryString = atob(responseData);
                                 const bytes = new Uint8Array(binaryString.length);
                                 for (let i = 0; i < binaryString.length; i++) {
                                     bytes[i] = binaryString.charCodeAt(i);
                                 }
-                                responseData = bytes.buffer;
-                                console.log(`✅ Decoded base64, resulting buffer size: ${responseData.byteLength}`);
+                                responseData = bytes;  // Use Uint8Array directly, NOT .buffer
+                                console.log(`✅ Decoded base64, resulting Uint8Array size: ${responseData.length}`);
                             } catch (e) {
-                                console.error(`Failed to decode base64:`, e);
+                                console.error(`❌ Failed to decode base64:`, e);
                                 responseData = data.data;
                             }
                         } else if (typeof responseData === 'string' && data.mime.includes('json')) {
