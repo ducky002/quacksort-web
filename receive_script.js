@@ -47,14 +47,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 console.log(`Response received (reqId: ${reqId}, status: ${data.status}, mime: ${data.mime})`);
                 if (pendingRequests.has(reqId)) {
                     const req = pendingRequests.get(reqId);
+                    
+                    // Clear the timeout since response arrived
+                    if (req.timeoutId) {
+                        clearTimeout(req.timeoutId);
+                    }
+                    
                     pendingRequests.delete(reqId);
+                    
+                    const elapsedMs = Date.now() - req.startTime;
+                    console.log(`✅ Response received after ${elapsedMs}ms for path: ${req.path}`);
 
                     if (data.status >= 400) {
                         console.error(`❌ Error response for ${req.path}: HTTP ${data.status}`);
                         console.error(`Error data:`, data.data);
-                    }
-                    
-                    if (data.status >= 400) {
                         req.resolve(new Response(null, { status: data.status }));
                     } else {
                         // Handle different data formats
@@ -89,6 +95,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 } else {
                     console.warn(`⚠️ Response received but no pending request found for reqId: ${reqId}`);
+                    console.warn(`⚠️ This typically means the request timed out before response arrived`);
+                    console.warn(`⚠️ Active pending requests:`, Array.from(pendingRequests.keys()));
                 }
             }
         });
@@ -105,25 +113,43 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // ── Custom Fetch proxy over WebRTC ──────────────────────────────────────
-    function fakeFetch(path) {
+    function fakeFetch(path, retries = 0) {
         return new Promise((resolve, reject) => {
             if (!conn || !conn.open) {
                 console.error("No connection to peer!");
                 return reject(new Error("No connection"));
             }
             const reqId = Math.random().toString(36).substring(2, 10);
-            console.log(`fakeFetch: Requesting ${path} (reqId: ${reqId})`);
-            pendingRequests.set(reqId, { resolve, reject, path });
+            console.log(`fakeFetch: Requesting ${path} (reqId: ${reqId}, attempt: ${retries + 1})`);
+            pendingRequests.set(reqId, { resolve, reject, path, startTime: Date.now() });
             conn.send({ type: 'request', reqId, path });
 
-            // Timeout just in case
-            setTimeout(() => {
+            // Extended timeout for high-latency P2P connections
+            // Images can take longer, especially over internet
+            const timeoutMs = 120000;  // 2 minutes - accounts for large files/high latency
+            const timeoutId = setTimeout(() => {
                 if (pendingRequests.has(reqId)) {
+                    const req = pendingRequests.get(reqId);
+                    const elapsedMs = Date.now() - req.startTime;
                     pendingRequests.delete(reqId);
-                    console.error(`fakeFetch timeout for ${path}`);
-                    resolve(new Response(null, { status: 504 }));
+                    
+                    console.error(`⏱️ fakeFetch timeout for ${path} after ${elapsedMs}ms (attempt: ${retries + 1})`);
+                    
+                    // Retry once on timeout for network instability
+                    if (retries < 1) {
+                        console.log(`Retrying ${path}...`);
+                        fakeFetch(path, retries + 1).then(resolve).catch(reject);
+                    } else {
+                        console.error(`❌ Final timeout after retries. Giving up on ${path}`);
+                        resolve(new Response(null, { status: 504 }));
+                    }
                 }
-            }, 30000);
+            }, timeoutMs);
+            
+            // Store timeout ID so we can clear it when response arrives
+            if (pendingRequests.has(reqId)) {
+                pendingRequests.get(reqId).timeoutId = timeoutId;
+            }
         });
     }
 
@@ -208,10 +234,28 @@ document.addEventListener('DOMContentLoaded', async () => {
             e.preventDefault();
             e.stopPropagation();
             const origSVG = dBtn.innerHTML;
-            dBtn.innerHTML = `<span style="font-size:12px; font-weight:bold;">...</span>`;
+            dBtn.innerHTML = `<span style="font-size:12px; font-weight:bold;">⏳</span>`;
             try {
+                console.log(`Starting download for ${img.name}...`);
                 const res = await fakeFetch(img.url);
+                
+                if (!res.ok) {
+                    throw new Error(`Server returned HTTP ${res.status}`);
+                }
+                
                 const blob = await res.blob();
+                console.log(`Downloaded blob: ${blob.size} bytes, type: ${blob.type}`);
+                
+                // Validate blob is not empty
+                if (blob.size === 0) {
+                    throw new Error("Downloaded file is empty (0 bytes) - this usually means network timeout");
+                }
+                
+                // Validate blob has reasonable size for an image (at least 100 bytes)
+                if (blob.size < 100) {
+                    console.warn(`⚠️ Downloaded file is suspiciously small: ${blob.size} bytes`);
+                }
+                
                 const objUrl = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = objUrl;
@@ -219,9 +263,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
-                setTimeout(() => URL.revokeObjectURL(objUrl), 5000); // cleanup later
+                console.log(`✅ Download completed: ${img.name}`);
+                setTimeout(() => URL.revokeObjectURL(objUrl), 5000);
             } catch (err) {
-                alert("Failed to download.");
+                console.error(`❌ Download failed for ${img.name}:`, err);
+                alert(`Failed to download: ${err.message || 'Unknown error'}`);
             }
             dBtn.innerHTML = origSVG;
         });
