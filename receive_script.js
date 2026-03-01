@@ -1,3 +1,17 @@
+// ── Theme Management (Apply before rendering) ──────────────────────────────
+(function() {
+    const savedTheme = localStorage.getItem('quacksort-theme');
+    const isDark = savedTheme === 'dark' || 
+                  (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    
+    if (isDark) {
+        document.documentElement.style.colorScheme = 'dark';
+        document.body.classList.add('dark-mode');
+    } else {
+        document.documentElement.style.colorScheme = 'light';
+    }
+})();
+
 document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(window.location.search);
     const peerId = params.get('peer');
@@ -153,6 +167,66 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // ── Theme Management ───────────────────────────────────────────────────
+    function initializeTheme() {
+        const savedTheme = localStorage.getItem('quacksort-theme');
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        
+        const isDark = savedTheme === 'dark' || 
+                      (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        
+        if (darkModeToggle) {
+            darkModeToggle.checked = isDark;
+            
+            // Listen for toggle changes
+            darkModeToggle.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    document.body.classList.add('dark-mode');
+                    document.documentElement.style.colorScheme = 'dark';
+                    localStorage.setItem('quacksort-theme', 'dark');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    document.documentElement.style.colorScheme = 'light';
+                    localStorage.setItem('quacksort-theme', 'light');
+                }
+            });
+        }
+    }
+    
+    // ── Settings Modal ─────────────────────────────────────────────────────
+    function initializeSettings() {
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsModal = document.getElementById('settings-modal');
+        const closeSettingsBtn = document.getElementById('close-settings-btn');
+        
+        if (!settingsBtn || !settingsModal) return;
+        
+        settingsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            settingsModal.style.display = 'flex';
+        });
+        
+        closeSettingsBtn.addEventListener('click', () => {
+            settingsModal.style.display = 'none';
+        });
+        
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) {
+                settingsModal.style.display = 'none';
+            }
+        });
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && settingsModal.style.display === 'flex') {
+                settingsModal.style.display = 'none';
+            }
+        });
+    }
+    
+    // Initialize theme and settings on page load
+    initializeTheme();
+    initializeSettings();
+
     // ── Application Logic ───────────────────────────────────────────────────
     async function loadGallery() {
         try {
@@ -273,8 +347,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // ZIP functionality - streams individual files over WebRTC and zips them locally purely in RAM
+    // Download All Functionality - downloads images one-by-one without zipping
     if (downloadZipBtn) {
+        downloadZipBtn.textContent = 'Download All';
         downloadZipBtn.addEventListener('click', async (e) => {
             e.preventDefault();
             if (imagesList.length === 0) return;
@@ -283,36 +358,59 @@ document.addEventListener('DOMContentLoaded', async () => {
             downloadZipBtn.disabled = true;
 
             try {
-                const zip = new JSZip();
-
+                console.log(`Starting download of ${imagesList.length} images...`);
+                let successCount = 0;
+                
                 for (let i = 0; i < imagesList.length; i++) {
                     const img = imagesList[i];
                     downloadZipBtn.textContent = `Downloading ${i + 1}/${imagesList.length}...`;
-                    const res = await fakeFetch(img.url);
-                    if (res.ok) {
+                    
+                    try {
+                        const res = await fakeFetch(img.url);
+                        if (!res.ok) {
+                            console.warn(`Failed to download ${img.name}: HTTP ${res.status}`);
+                            continue;
+                        }
+                        
                         const blob = await res.blob();
-                        zip.file(img.name, blob);
+                        
+                        // Validate blob
+                        if (blob.size === 0) {
+                            console.warn(`Skipped ${img.name}: empty blob (0 bytes)`);
+                            continue;
+                        }
+                        
+                        // Create download link
+                        const objUrl = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = objUrl;
+                        a.download = img.name;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        
+                        // Small delay between downloads for stability
+                        await new Promise(resolve => setTimeout(resolve, 200));
+                        
+                        console.log(`✅ Downloaded: ${img.name} (${blob.size} bytes)`);
+                        setTimeout(() => URL.revokeObjectURL(objUrl), 5000);
+                        successCount++;
+                    } catch (err) {
+                        console.error(`Error downloading ${img.name}:`, err);
                     }
                 }
-
-                downloadZipBtn.textContent = 'Zipping...';
-                const zipBlob = await zip.generateAsync({ type: "blob" });
-
-                const objUrl = URL.createObjectURL(zipBlob);
-                const a = document.createElement('a');
-                a.href = objUrl;
-                a.download = `${folderLabel.textContent || 'Photos'}.zip`;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                setTimeout(() => URL.revokeObjectURL(objUrl), 10000);
+                
+                downloadZipBtn.textContent = `✅ Downloaded ${successCount}/${imagesList.length}`;
+                setTimeout(() => {
+                    downloadZipBtn.textContent = origText;
+                    downloadZipBtn.disabled = false;
+                }, 2000);
 
             } catch (err) {
-                console.error(err);
-                alert("Failed to build ZIP. Connection may have been lost.");
-            } finally {
-                downloadZipBtn.disabled = false;
+                console.error('Download all failed:', err);
+                alert(`Download failed: ${err.message || 'Unknown error'}`);
                 downloadZipBtn.textContent = origText;
+                downloadZipBtn.disabled = false;
             }
         });
     }
