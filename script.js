@@ -33,6 +33,30 @@ if (closeReceiveBtn) {
     });
 }
 
+const connectBtn = document.querySelector('#receive-section .btn.primary');
+const receiveInput = document.getElementById('receive-code');
+
+if (connectBtn && receiveInput) {
+    connectBtn.addEventListener('click', () => {
+        let val = receiveInput.value.trim().toLowerCase();
+        if (!val) return;
+
+        // If it's a 6-character session code
+        if (val.length === 6 && !val.includes('http')) {
+            window.location.href = `receive.html?peer=quack-${val}`;
+            return;
+        }
+
+        // If it's a full link, just go there
+        if (val.includes('quacksort.com/receive.html')) {
+            window.location.href = val;
+            return;
+        }
+
+        alert("Please enter a valid 6-character session code or paste the full share link.");
+    });
+}
+
 // ── UI Handlers: File Upload ──────────────────────────────────────────────
 if (dropZone) {
     dropZone.addEventListener('click', () => fileInput.click());
