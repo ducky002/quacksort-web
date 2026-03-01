@@ -44,41 +44,51 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.log("Browser received P2P data:", data);
             if (data.type === 'response') {
                 const reqId = data.reqId;
-                console.log(`Response received (reqId: ${reqId}, status: ${data.status}, mime: ${data.mime}, isBase64: ${data.isBase64})`);
+                console.log(`Response received (reqId: ${reqId}, status: ${data.status}, mime: ${data.mime})`);
                 if (pendingRequests.has(reqId)) {
                     const req = pendingRequests.get(reqId);
                     pendingRequests.delete(reqId);
 
                     if (data.status >= 400) {
-                        console.error(`Error response for ${req.path}: HTTP ${data.status}`);
+                        console.error(`❌ Error response for ${req.path}: HTTP ${data.status}`);
+                        console.error(`Error data:`, data.data);
                     }
+                    
                     if (data.status >= 400) {
                         req.resolve(new Response(null, { status: data.status }));
                     } else {
+                        // Handle different data formats
                         let responseData = data.data;
                         
-                        // If data was sent as base64, decode it
-                        if (data.isBase64 && typeof responseData === 'string') {
-                            try {
-                                const binaryString = atob(responseData);
-                                const bytes = new Uint8Array(binaryString.length);
-                                for (let i = 0; i < binaryString.length; i++) {
-                                    bytes[i] = binaryString.charCodeAt(i);
+                        // If it's a string (JSON or base64), convert appropriately
+                        if (typeof responseData === 'string') {
+                            // Check if it looks like JSON
+                            if (data.mime.includes('json') && responseData.charAt(0) === '{') {
+                                responseData = new TextEncoder().encode(responseData);
+                            } else if (data.mime.includes('json')) {
+                                // Try parsing as base64
+                                try {
+                                    const binaryString = atob(responseData);
+                                    const bytes = new Uint8Array(binaryString.length);
+                                    for (let i = 0; i < binaryString.length; i++) {
+                                        bytes[i] = binaryString.charCodeAt(i);
+                                    }
+                                    responseData = bytes.buffer;
+                                } catch (e) {
+                                    console.warn(`Could not decode base64, using as-is`);
+                                    responseData = new TextEncoder().encode(responseData);
                                 }
-                                responseData = bytes.buffer;
-                                console.log(`Decoded base64, resulting buffer size: ${responseData.byteLength}`);
-                            } catch (e) {
-                                console.error(`Failed to decode base64:`, e);
-                                responseData = data.data;
+                            } else {
+                                responseData = new TextEncoder().encode(responseData);
                             }
                         }
                         
                         const blob = new Blob([responseData], { type: data.mime });
-                        console.log(`Creating blob from response, blob size: ${blob.size}`);
+                        console.log(`✅ Creating blob from response, blob size: ${blob.size}`);
                         req.resolve(new Response(blob, { status: data.status, headers: { 'Content-Type': data.mime } }));
                     }
                 } else {
-                    console.warn(`Response received but no pending request found for reqId: ${reqId}`);
+                    console.warn(`⚠️ Response received but no pending request found for reqId: ${reqId}`);
                 }
             }
         });
