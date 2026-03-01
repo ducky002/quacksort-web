@@ -60,31 +60,30 @@ document.addEventListener('DOMContentLoaded', async () => {
                         // Handle different data formats
                         let responseData = data.data;
                         
-                        // If it's a string (JSON or base64), convert appropriately
-                        if (typeof responseData === 'string') {
-                            // Check if it looks like JSON
-                            if (data.mime.includes('json') && responseData.charAt(0) === '{') {
-                                responseData = new TextEncoder().encode(responseData);
-                            } else if (data.mime.includes('json')) {
-                                // Try parsing as base64
-                                try {
-                                    const binaryString = atob(responseData);
-                                    const bytes = new Uint8Array(binaryString.length);
-                                    for (let i = 0; i < binaryString.length; i++) {
-                                        bytes[i] = binaryString.charCodeAt(i);
-                                    }
-                                    responseData = bytes.buffer;
-                                } catch (e) {
-                                    console.warn(`Could not decode base64, using as-is`);
-                                    responseData = new TextEncoder().encode(responseData);
+                        // If data was sent as base64 (for images)
+                        if (data.isBase64 && typeof responseData === 'string') {
+                            try {
+                                const binaryString = atob(responseData);
+                                const bytes = new Uint8Array(binaryString.length);
+                                for (let i = 0; i < binaryString.length; i++) {
+                                    bytes[i] = binaryString.charCodeAt(i);
                                 }
-                            } else {
-                                responseData = new TextEncoder().encode(responseData);
+                                responseData = bytes.buffer;
+                                console.log(`✅ Decoded base64, resulting buffer size: ${responseData.byteLength}`);
+                            } catch (e) {
+                                console.error(`Failed to decode base64:`, e);
+                                responseData = data.data;
                             }
+                        } else if (typeof responseData === 'string' && data.mime.includes('json')) {
+                            // JSON response - convert string to bytes
+                            responseData = new TextEncoder().encode(responseData);
+                        } else if (typeof responseData === 'string') {
+                            // Text response - convert to bytes
+                            responseData = new TextEncoder().encode(responseData);
                         }
                         
                         const blob = new Blob([responseData], { type: data.mime });
-                        console.log(`✅ Creating blob from response, blob size: ${blob.size}`);
+                        console.log(`✅ Creating blob from response, blob size: ${blob.size}, mime: ${data.mime}`);
                         req.resolve(new Response(blob, { status: data.status, headers: { 'Content-Type': data.mime } }));
                     }
                 } else {
