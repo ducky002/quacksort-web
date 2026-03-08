@@ -1,12 +1,23 @@
-// Supabase Configuration (Template)
-// Replace these with your actual Supabase URL and Anon Key
-const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+// Supabase Configuration - Now handled by supabase_client.js
+// The supabase client is initialized globally in supabase_client.js
 
-let supabase = null;
-if (typeof createClient !== 'undefined' && SUPABASE_URL !== 'YOUR_SUPABASE_PROJECT_URL') {
-    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// ── Extract Event Code from URL ───────────────────────────────────────────
+function getEventCodeFromURL() {
+    const searchParams = new URLSearchParams(window.location.search);
+    return searchParams.get('eventCode') || '';
 }
+
+// Auto-fill invite code if passed in URL
+window.addEventListener('load', () => {
+    const eventCode = getEventCodeFromURL();
+    if (eventCode) {
+        const inviteCodeInput = document.getElementById('invite_code');
+        if (inviteCodeInput) {
+            inviteCodeInput.value = eventCode;
+            inviteCodeInput.readOnly = true;  // Prevent user from changing it
+        }
+    }
+});
 
 // ── DOM Elements ──────────────────────────────────────────────────────────
 const receiveBtn = document.getElementById('btn-receive-photos');
@@ -109,56 +120,53 @@ if (registrationForm) {
     registrationForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        if (!supabase) {
-            showStatus('Supabase is not configured. Please add your credentials in script.js.', 'error');
-            return;
-        }
-
         const submitBtn = document.getElementById('submit-btn');
         submitBtn.disabled = true;
         submitBtn.textContent = 'Registering...';
-        showStatus('Uploading your information...', '');
+        showStatus('Processing your registration...', '');
 
         try {
             const formData = new FormData(registrationForm);
-            const name = formData.get('name');
-            const email = formData.get('email');
-            const inviteCode = formData.get('invite_code');
+            const name = formData.get('name').trim();
+            const email = formData.get('email').trim();
+            const eventCode = formData.get('invite_code').trim();  // Event code comes from invite_code field
             const file = formData.get('face_photo');
 
+            // Validate
+            if (!name || !email || !eventCode || !file) {
+                throw new Error('All fields are required');
+            }
+
+            showStatus('Uploading your face photo...', '');
+
             // 1. Upload Image to Supabase Storage
-            const fileName = `${Date.now()}_${file.name.replace(/\s/g, '_')}`;
-            const { data: storageData, error: storageError } = await supabase.storage
-                .from('face_photos')
-                .upload(fileName, file);
+            const imageUrl = await uploadFaceImage(file, eventCode, name);
 
-            if (storageError) throw storageError;
+            showStatus('Saving your registration...', '');
 
-            // 2. Get Public URL
-            const { data: { publicUrl } } = supabase.storage
-                .from('face_photos')
-                .getPublicUrl(fileName);
+            // 2. Insert Record into Supabase enrollments table
+            const enrollmentData = {
+                name: name,
+                email: email,
+                event_code: eventCode,
+                face_image_path: imageUrl
+            };
 
-            // 3. Insert Record into Supabase Table
-            const { error: dbError } = await supabase
-                .from('registrations')
-                .insert([{
-                    name,
-                    email,
-                    invite_code: inviteCode,
-                    face_photo_url: publicUrl
-                }]);
+            await submitEnrollment(enrollmentData);
 
-            if (dbError) throw dbError;
-
-            showStatus('Registration successful! You will be identified in photos.', 'success');
+            showStatus('✅ Registration successful! You will be identified in photos.', 'success');
             registrationForm.reset();
             filePreview.style.display = 'none';
             dropZone.style.display = 'block';
+            
+            // Optionally redirect after success
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 3000);
 
         } catch (error) {
             console.error('Registration Error:', error);
-            showStatus('Error: ' + error.message, 'error');
+            showStatus('❌ Error: ' + error.message, 'error');
         } finally {
             submitBtn.disabled = false;
             submitBtn.textContent = 'Register Now';
@@ -168,6 +176,6 @@ if (registrationForm) {
 
 function showStatus(text, type) {
     statusMsg.textContent = text;
-    statusMsg.className = 'status-message ' + type;
+    statusMsg.className = 'status-message ' + (type ? type : '');
     statusMsg.style.display = 'block';
 }
