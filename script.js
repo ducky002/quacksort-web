@@ -31,6 +31,15 @@ const filePreview = document.getElementById('file-preview');
 const removeFileBtn = document.getElementById('remove-file');
 const statusMsg = document.getElementById('status-message');
 
+const btnCamera = document.getElementById('btn-camera');
+const btnGallery = document.getElementById('btn-gallery');
+const cameraContainer = document.getElementById('camera-container');
+const cameraVideo = document.getElementById('camera-video');
+const btnCapture = document.getElementById('btn-capture');
+const btnCloseCamera = document.getElementById('btn-close-camera');
+const cameraCanvas = document.getElementById('camera-canvas');
+const uploadOptions = document.querySelector('.upload-options');
+
 // ── UI Handlers: Receive Modal ────────────────────────────────────────────
 if (receiveBtn) {
     receiveBtn.addEventListener('click', () => {
@@ -69,13 +78,80 @@ if (connectBtn && receiveInput) {
 }
 
 // ── UI Handlers: File Upload ──────────────────────────────────────────────
-if (dropZone) {
-    dropZone.addEventListener('click', () => fileInput.click());
+let stream = null;
 
-    fileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) handleFile(file);
+if (btnCamera) {
+    btnCamera.addEventListener('click', async () => {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+            cameraVideo.srcObject = stream;
+            cameraContainer.style.display = 'flex';
+            if (dropZone) dropZone.style.display = 'none';
+        } catch (err) {
+            alert('Cannot access camera: ' + err.message);
+        }
     });
+}
+
+if (btnGallery) {
+    btnGallery.addEventListener('click', () => {
+        if (dropZone) dropZone.style.display = 'block';
+        if (cameraContainer) cameraContainer.style.display = 'none';
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+    });
+}
+
+if (btnCloseCamera) {
+    btnCloseCamera.addEventListener('click', () => {
+        if (cameraContainer) cameraContainer.style.display = 'none';
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+    });
+}
+
+if (btnCapture) {
+    btnCapture.addEventListener('click', () => {
+        if (!stream) return;
+        cameraCanvas.width = cameraVideo.videoWidth;
+        cameraCanvas.height = cameraVideo.videoHeight;
+        const ctx = cameraCanvas.getContext('2d');
+
+        ctx.translate(cameraCanvas.width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(cameraVideo, 0, 0, cameraCanvas.width, cameraCanvas.height);
+
+        cameraCanvas.toBlob((blob) => {
+            const file = new File([blob], "selfie.jpg", { type: "image/jpeg" });
+
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            if (fileInput) fileInput.files = dataTransfer.files;
+
+            handleFile(file);
+
+            if (cameraContainer) cameraContainer.style.display = 'none';
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }, 'image/jpeg');
+    });
+}
+
+if (dropZone) {
+    dropZone.addEventListener('click', () => {
+        if (fileInput) fileInput.click();
+    });
+
+    if (fileInput) {
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) handleFile(file);
+        });
+    }
 
     dropZone.addEventListener('dragover', (e) => {
         e.preventDefault();
@@ -100,18 +176,21 @@ function handleFile(file) {
     }
     const reader = new FileReader();
     reader.onload = (e) => {
-        previewImg.src = e.target.result;
-        filePreview.style.display = 'block';
-        dropZone.style.display = 'none';
+        if (previewImg) previewImg.src = e.target.result;
+        if (filePreview) filePreview.style.display = 'block';
+        if (dropZone) dropZone.style.display = 'none';
+        if (uploadOptions) uploadOptions.style.display = 'none';
     };
     reader.readAsDataURL(file);
 }
 
 if (removeFileBtn) {
     removeFileBtn.addEventListener('click', () => {
-        fileInput.value = '';
-        filePreview.style.display = 'none';
-        dropZone.style.display = 'block';
+        if (fileInput) fileInput.value = '';
+        if (filePreview) filePreview.style.display = 'none';
+        if (uploadOptions) uploadOptions.style.display = 'flex';
+        if (dropZone) dropZone.style.display = 'none';
+        if (cameraContainer) cameraContainer.style.display = 'none';
     });
 }
 
@@ -158,7 +237,7 @@ if (registrationForm) {
             registrationForm.reset();
             filePreview.style.display = 'none';
             dropZone.style.display = 'block';
-            
+
             // Optionally redirect after success
             setTimeout(() => {
                 window.location.href = 'index.html';
