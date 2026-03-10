@@ -7,7 +7,7 @@
 const SUPABASE_URL = 'https://hnpderxguoyvwqcugleo.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhucGRlcnhndW95dndxY3VnbGVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5ODk1MTcsImV4cCI6MjA4ODU2NTUxN30.gMahx_1EZkew6KDawl4OzWNLMY6rFBNrmMw5iMRruZM';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /**
  * Upload face image to Supabase storage
@@ -22,24 +22,24 @@ async function uploadFaceImage(imageFile, eventCode, personName) {
         const timestamp = Date.now();
         const sanitizedName = personName.replace(/\s+/g, '_').toLowerCase();
         const fileName = `${eventCode}/${sanitizedName}_${timestamp}.jpg`;
-        
+
         // Upload to storage bucket
-        const { data, error } = await supabase.storage
+        const { data, error } = await supabaseClient.storage
             .from('face-uploads')
             .upload(fileName, imageFile, {
                 cacheControl: '3600',
                 upsert: false
             });
-        
+
         if (error) {
             throw new Error(`Upload failed: ${error.message}`);
         }
-        
+
         // Get public URL
-        const { data: publicUrl } = supabase.storage
+        const { data: publicUrl } = supabaseClient.storage
             .from('face-uploads')
             .getPublicUrl(fileName);
-        
+
         return publicUrl.publicUrl;
     } catch (error) {
         console.error('Face image upload error:', error);
@@ -54,14 +54,14 @@ async function uploadFaceImage(imageFile, eventCode, personName) {
  */
 async function submitEnrollment(enrollmentData) {
     try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('enrollments')
             .insert([enrollmentData]);
-        
+
         if (error) {
             throw new Error(`Database error: ${error.message}`);
         }
-        
+
         return { success: true, data };
     } catch (error) {
         console.error('Enrollment submission error:', error);
@@ -76,15 +76,15 @@ async function submitEnrollment(enrollmentData) {
  */
 async function getEventEnrollments(eventCode) {
     try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('enrollments')
             .select('*')
             .eq('event_code', eventCode);
-        
+
         if (error) {
             throw new Error(`Fetch error: ${error.message}`);
         }
-        
+
         return data;
     } catch (error) {
         console.error('Get enrollments error:', error);
