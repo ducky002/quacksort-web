@@ -206,26 +206,29 @@ if (registrationForm) {
 
         try {
             const formData = new FormData(registrationForm);
-            const name = formData.get('name').trim();
-            const email = formData.get('email').trim();
-            const eventCode = formData.get('invite_code').trim();  // Event code comes from invite_code field
+            const f_name = formData.get('f_name').trim();
+            const l_name = formData.get('l_name').trim();
+            const email = formData.get('email').trim() || ""; // Optional
+            const eventCode = formData.get('invite_code').trim();
             const file = formData.get('face_photo');
 
             // Validate
-            if (!name || !email || !eventCode || !file) {
-                throw new Error('All fields are required');
+            if (!f_name || !l_name || !eventCode || !file) {
+                throw new Error('First name, last name, event code, and photo are required');
             }
 
             showStatus('Uploading your face photo...', '');
 
             // 1. Upload Image to Supabase Storage
-            const imageUrl = await uploadFaceImage(file, eventCode, name);
+            const fullName = `${f_name} ${l_name}`;
+            const imageUrl = await uploadFaceImage(file, eventCode, fullName);
 
             showStatus('Saving your registration...', '');
 
             // 2. Insert Record into Supabase enrollments table
             const enrollmentData = {
-                name: name,
+                f_name: f_name,
+                l_name: l_name,
                 email: email,
                 event_code: eventCode,
                 face_image_path: imageUrl
