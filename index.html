@@ -21,32 +21,25 @@
             </div>
             <div class="nav-right">
                 <a href="register.html" class="nav-link register-link">Register for Event</a>
+                <button id="settings-btn" class="settings-icon-btn" title="Settings" aria-label="Open settings">
+                    <img src="resources/q_settings.png" alt="Settings" class="nav-icon">
+                </button>
             </div>
         </header>
 
         <main class="hero-section">
             <div class="hero-content">
-                <h1 class="hero-title">Organize your memories with <span class="highlight">AI</span>.</h1>
-                <p class="hero-subtitle">The most advanced face recognition photo sorting app. Fast, private, and smart.
+                <h1 class="hero-title">Organize your memories with <span class="highlight">complete ownership</span>.</h1>
+                <p class="hero-subtitle">An advanced, privacy-first event management and sorting app. Fast, private and smart.
                 </p>
 
                 <div class="hero-actions">
                     <button id="btn-receive-photos" class="btn primary large">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2.5">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                            <polyline points="7 10 12 15 17 10" />
-                            <line x1="12" y1="15" x2="12" y2="3" />
-                        </svg>
+                        <img src="resources/q_receive.png" alt="" class="btn-icon-img">
                         Receive Photos
                     </button>
                     <a href="#" class="btn secondary large">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2.5">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                            <polyline points="17 8 12 3 7 8" />
-                            <line x1="12" y1="3" x2="12" y2="15" />
-                        </svg>
+                        <img src="resources/q_download.png" alt="" class="btn-icon-img">
                         Download App
                     </a>
                 </div>
@@ -65,6 +58,47 @@
                 <button class="btn-text btn-close-receive">Cancel</button>
             </div>
         </section>
+
+        <div id="settings-modal" class="settings-modal" style="display: none;">
+            <div class="settings-card">
+                <h2>Settings</h2>
+
+                <div class="settings-row">
+                    <label class="settings-toggle-label" for="dark-mode-toggle">
+                        <input type="checkbox" id="dark-mode-toggle">
+                        Dark Mode
+                    </label>
+                </div>
+
+                <div class="privacy-policy-block">
+                    <h3>Privacy Statement</h3>
+                    <article class="privacy-article">
+                        <p>
+                            QuackSort is built with a strict privacy-first approach. We do not use your personal data,
+                            face data, or event photos for analytics, model training, or profiling. We do not sell,
+                            rent, or share your data with advertisers or unrelated third parties.
+                        </p>
+                        <p>
+                            Registration on this website is only used to sync your face enrollment with the desktop app
+                            of the event creator who shared your event code. When you upload your selfie, our server
+                            stores only your first name, last name, and a face model required for matching.
+                        </p>
+                        <p>
+                            Access to this enrollment data is restricted to you and the event creator linked to your
+                            event code. Your event photos remain with your photographer and do not get moved to QuackSort
+                            cloud storage as part of this registration flow.
+                        </p>
+                        <p>
+                            Unlike subscription-based cloud workflows that require uploading full event libraries,
+                            QuackSort delivers core sorting capabilities on local devices, giving you stronger control
+                            over your memories and reducing exposure to cloud privacy risks.
+                        </p>
+                    </article>
+                </div>
+
+                <button id="close-settings-btn" class="btn secondary settings-close-btn">Close</button>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>

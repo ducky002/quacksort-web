@@ -56,11 +56,15 @@
                     <div class="form-group">
                         <label>Your Face Photo</label>
 
-                        <div class="upload-options" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
-                            <button type="button" id="btn-camera" class="btn secondary"
-                                style="flex: 1; justify-content: center;">📷 Take Selfie</button>
-                            <button type="button" id="btn-gallery" class="btn secondary"
-                                style="flex: 1; justify-content: center;">📁 Upload from Gallery</button>
+                        <div class="upload-options upload-options-row">
+                            <button type="button" id="btn-camera" class="btn secondary upload-choice-btn">
+                                <img src="resources/q_camera.png" alt="" class="btn-icon-img">
+                                Upload Selfie
+                            </button>
+                            <button type="button" id="btn-gallery" class="btn secondary upload-choice-btn">
+                                <img src="resources/q_gallery.png" alt="" class="btn-icon-img">
+                                Upload from Gallery
+                            </button>
                         </div>
 
                         <div id="camera-container"
@@ -77,9 +81,8 @@
                         <div class="file-upload-area" id="drop-zone" style="display: none;">
                             <span class="upload-icon">📸</span>
                             <p>Click or drag your selfie here</p>
-                            <input type="file" id="face_photo" name="face_photo" accept="image/*"
-                                style="display: none;">
                         </div>
+                        <input type="file" id="face_photo" name="face_photo" accept="image/*" style="display: none;">
                         <div id="file-preview" class="file-preview" style="display: none;">
                             <img id="preview-img" src="" alt="Face Preview">
                             <button type="button" id="remove-file" class="btn-remove">✕</button>

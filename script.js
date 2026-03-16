@@ -1,6 +1,66 @@
 // Supabase Configuration - Now handled by supabase_client.js
 // The supabase client is initialized globally in supabase_client.js
 
+// ── Theme + Settings Helpers ──────────────────────────────────────────────
+function initializeThemeAndSettings() {
+    const savedTheme = localStorage.getItem('quacksort-theme');
+    const isDark = savedTheme === 'dark' ||
+        (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+    if (isDark) {
+        document.documentElement.style.colorScheme = 'dark';
+        document.body.classList.add('dark-mode');
+    } else {
+        document.documentElement.style.colorScheme = 'light';
+        document.body.classList.remove('dark-mode');
+    }
+
+    const settingsBtn = document.getElementById('settings-btn');
+    const settingsModal = document.getElementById('settings-modal');
+    const closeSettingsBtn = document.getElementById('close-settings-btn');
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+
+    if (darkModeToggle) {
+        darkModeToggle.checked = isDark;
+        darkModeToggle.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                document.body.classList.add('dark-mode');
+                document.documentElement.style.colorScheme = 'dark';
+                localStorage.setItem('quacksort-theme', 'dark');
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.documentElement.style.colorScheme = 'light';
+                localStorage.setItem('quacksort-theme', 'light');
+            }
+        });
+    }
+
+    if (settingsBtn && settingsModal) {
+        settingsBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            settingsModal.style.display = 'flex';
+        });
+    }
+
+    if (closeSettingsBtn && settingsModal) {
+        closeSettingsBtn.addEventListener('click', () => {
+            settingsModal.style.display = 'none';
+        });
+
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) {
+                settingsModal.style.display = 'none';
+            }
+        });
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && settingsModal && settingsModal.style.display === 'flex') {
+            settingsModal.style.display = 'none';
+        }
+    });
+}
+
 // ── Extract Event Code from URL ───────────────────────────────────────────
 function getEventCodeFromURL() {
     const searchParams = new URLSearchParams(window.location.search);
@@ -9,6 +69,8 @@ function getEventCodeFromURL() {
 
 // Auto-fill invite code if passed in URL
 window.addEventListener('load', () => {
+    initializeThemeAndSettings();
+
     const eventCode = getEventCodeFromURL();
     if (eventCode) {
         const inviteCodeInput = document.getElementById('invite_code');
@@ -95,12 +157,12 @@ if (btnCamera) {
 
 if (btnGallery) {
     btnGallery.addEventListener('click', () => {
-        if (dropZone) dropZone.style.display = 'block';
         if (cameraContainer) cameraContainer.style.display = 'none';
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
             stream = null;
         }
+        if (fileInput) fileInput.click();
     });
 }
 
@@ -159,7 +221,7 @@ if (dropZone) {
     });
 
     dropZone.addEventListener('dragleave', () => {
-        dropZone.style.borderColor = 'var(--glass-border)';
+        dropZone.style.borderColor = 'var(--border-color)';
     });
 
     dropZone.addEventListener('drop', (e) => {
@@ -191,6 +253,7 @@ if (removeFileBtn) {
         if (uploadOptions) uploadOptions.style.display = 'flex';
         if (dropZone) dropZone.style.display = 'none';
         if (cameraContainer) cameraContainer.style.display = 'none';
+        if (statusMsg) statusMsg.style.display = 'none';
     });
 }
 
@@ -239,7 +302,8 @@ if (registrationForm) {
             showStatus('✅ Registration successful! You will be identified in photos.', 'success');
             registrationForm.reset();
             filePreview.style.display = 'none';
-            dropZone.style.display = 'block';
+            if (uploadOptions) uploadOptions.style.display = 'flex';
+            if (dropZone) dropZone.style.display = 'none';
 
             // Optionally redirect after success
             setTimeout(() => {

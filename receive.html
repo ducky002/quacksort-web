@@ -220,37 +220,50 @@
             <div class="nav-right" style="display: flex; gap: 1rem; align-items: center;">
                 <a href="index.html" class="nav-link">Home</a>
                 <a href="register.html" class="nav-link register-link">Register for Event</a>
-                <button id="settings-btn"
-                    style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: var(--text-primary); padding: 0.5rem;"
-                    title="Settings">⚙️</button>
+                <button id="settings-btn" class="settings-icon-btn" title="Settings" aria-label="Open settings">
+                    <img src="resources/q_settings.png" alt="Settings" class="nav-icon">
+                </button>
             </div>
         </header>
 
-        <div id="settings-modal"
-            style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
-            <div
-                style="background: var(--card-bg); border-radius: 16px; padding: 2rem; max-width: 400px; border: 1px solid var(--border-color); box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
-                <h2 style="margin-bottom: 1.5rem; color: var(--text-primary);">Settings</h2>
+        <div id="settings-modal" class="settings-modal" style="display: none;">
+            <div class="settings-card">
+                <h2>Settings</h2>
 
-                <div style="margin-bottom: 1.5rem;">
-                    <label
-                        style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; color: var(--text-primary); font-weight: 500;">
-                        <input type="checkbox" id="dark-mode-toggle"
-                            style="width: 18px; height: 18px; cursor: pointer;">
+                <div class="settings-row">
+                    <label class="settings-toggle-label" for="dark-mode-toggle">
+                        <input type="checkbox" id="dark-mode-toggle">
                         Dark Mode
                     </label>
                 </div>
 
-                <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem; margin-bottom: 1.5rem;">
-                    <h3 style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.5rem;">About QuackSort
-                    </h3>
-                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.5rem;">P2P Photo
-                        Sharing Application</p>
-                    <p style="color: var(--text-secondary); font-size: 0.85rem;">Share photos securely with your friends
-                        without uploading to the cloud.</p>
+                <div class="privacy-policy-block">
+                    <h3>Privacy Statement</h3>
+                    <article class="privacy-article">
+                        <p>
+                            QuackSort is built with a strict privacy-first approach. We do not use your personal data,
+                            face data, or event photos for analytics, model training, or profiling. We do not sell,
+                            rent, or share your data with advertisers or unrelated third parties.
+                        </p>
+                        <p>
+                            Registration on this website is only used to sync your face enrollment with the desktop app
+                            of the event creator who shared your event code. When you upload your selfie, our server
+                            stores only your first name, last name, and a face model required for matching.
+                        </p>
+                        <p>
+                            Access to this enrollment data is restricted to you and the event creator linked to your
+                            event code. Your event photos remain with your photographer and do not get moved to QuackSort
+                            cloud storage as part of this registration flow.
+                        </p>
+                        <p>
+                            Unlike subscription-based cloud workflows that require uploading full event libraries,
+                            QuackSort delivers core sorting capabilities on local devices, giving you stronger control
+                            over your memories and reducing exposure to cloud privacy risks.
+                        </p>
+                    </article>
                 </div>
 
-                <button id="close-settings-btn" class="btn secondary" style="width: 100%;">Close</button>
+                <button id="close-settings-btn" class="btn secondary settings-close-btn">Close</button>
             </div>
         </div>
 
