@@ -1,17 +1,3 @@
-// ── Theme Management (Apply before rendering) ──────────────────────────────
-(function() {
-    const savedTheme = localStorage.getItem('quacksort-theme');
-    const isDark = savedTheme === 'dark' || 
-                  (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    
-    if (isDark) {
-        document.documentElement.style.colorScheme = 'dark';
-        document.body.classList.add('dark-mode');
-    } else {
-        document.documentElement.style.colorScheme = 'light';
-    }
-})();
-
 document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(window.location.search);
     const peerId = params.get('peer');
@@ -167,32 +153,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // ── Theme Management ───────────────────────────────────────────────────
-    function initializeTheme() {
-        const savedTheme = localStorage.getItem('quacksort-theme');
-        const darkModeToggle = document.getElementById('dark-mode-toggle');
-        
-        const isDark = savedTheme === 'dark' || 
-                      (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        
-        if (darkModeToggle) {
-            darkModeToggle.checked = isDark;
-            
-            // Listen for toggle changes
-            darkModeToggle.addEventListener('change', (e) => {
-                if (e.target.checked) {
-                    document.body.classList.add('dark-mode');
-                    document.documentElement.style.colorScheme = 'dark';
-                    localStorage.setItem('quacksort-theme', 'dark');
-                } else {
-                    document.body.classList.remove('dark-mode');
-                    document.documentElement.style.colorScheme = 'light';
-                    localStorage.setItem('quacksort-theme', 'light');
-                }
-            });
-        }
-    }
-    
     // ── Settings Modal ─────────────────────────────────────────────────────
     function initializeSettings() {
         const settingsBtn = document.getElementById('settings-btn');
@@ -223,8 +183,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
     
-    // Initialize theme and settings on page load
-    initializeTheme();
+    // Initialize settings on page load
     initializeSettings();
 
     // ── Application Logic ───────────────────────────────────────────────────

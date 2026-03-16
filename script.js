@@ -1,39 +1,11 @@
 // Supabase Configuration - Now handled by supabase_client.js
 // The supabase client is initialized globally in supabase_client.js
 
-// ── Theme + Settings Helpers ──────────────────────────────────────────────
-function initializeThemeAndSettings() {
-    const savedTheme = localStorage.getItem('quacksort-theme');
-    const isDark = savedTheme === 'dark' ||
-        (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
-
-    if (isDark) {
-        document.documentElement.style.colorScheme = 'dark';
-        document.body.classList.add('dark-mode');
-    } else {
-        document.documentElement.style.colorScheme = 'light';
-        document.body.classList.remove('dark-mode');
-    }
-
+// ── Settings Helpers ───────────────────────────────────────────────────────
+function initializeSettings() {
     const settingsBtn = document.getElementById('settings-btn');
     const settingsModal = document.getElementById('settings-modal');
     const closeSettingsBtn = document.getElementById('close-settings-btn');
-    const darkModeToggle = document.getElementById('dark-mode-toggle');
-
-    if (darkModeToggle) {
-        darkModeToggle.checked = isDark;
-        darkModeToggle.addEventListener('change', (e) => {
-            if (e.target.checked) {
-                document.body.classList.add('dark-mode');
-                document.documentElement.style.colorScheme = 'dark';
-                localStorage.setItem('quacksort-theme', 'dark');
-            } else {
-                document.body.classList.remove('dark-mode');
-                document.documentElement.style.colorScheme = 'light';
-                localStorage.setItem('quacksort-theme', 'light');
-            }
-        });
-    }
 
     if (settingsBtn && settingsModal) {
         settingsBtn.addEventListener('click', (e) => {
@@ -69,7 +41,7 @@ function getEventCodeFromURL() {
 
 // Auto-fill invite code if passed in URL
 window.addEventListener('load', () => {
-    initializeThemeAndSettings();
+    initializeSettings();
 
     const eventCode = getEventCodeFromURL();
     if (eventCode) {
