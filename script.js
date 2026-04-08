@@ -73,6 +73,42 @@ const btnCapture = document.getElementById('btn-capture');
 const btnCloseCamera = document.getElementById('btn-close-camera');
 const cameraCanvas = document.getElementById('camera-canvas');
 const uploadOptions = document.querySelector('.upload-options');
+const downloadBtn = document.getElementById('btn-download-app');
+const downloadPanel = document.getElementById('download-options-panel');
+
+// ── UI Handlers: Download Platform Picker ────────────────────────────────
+function closeDownloadPanel() {
+    if (!downloadPanel || !downloadBtn) return;
+    downloadPanel.classList.remove('is-open');
+    downloadPanel.setAttribute('aria-hidden', 'true');
+    downloadBtn.setAttribute('aria-expanded', 'false');
+}
+
+if (downloadBtn && downloadPanel) {
+    downloadBtn.addEventListener('click', () => {
+        const willOpen = !downloadPanel.classList.contains('is-open');
+        if (willOpen) {
+            downloadPanel.classList.add('is-open');
+            downloadPanel.setAttribute('aria-hidden', 'false');
+            downloadBtn.setAttribute('aria-expanded', 'true');
+            return;
+        }
+
+        closeDownloadPanel();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!downloadPanel.classList.contains('is-open')) return;
+        if (downloadPanel.contains(e.target) || downloadBtn.contains(e.target)) return;
+        closeDownloadPanel();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeDownloadPanel();
+        }
+    });
+}
 
 // ── UI Handlers: Receive Modal ────────────────────────────────────────────
 if (receiveBtn) {

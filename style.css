@@ -139,6 +139,113 @@ body {
     gap: 1rem;
 }
 
+.download-options-panel {
+    display: none;
+    margin-top: 1rem;
+    width: min(560px, 100%);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 14px 30px var(--shadow-color);
+    padding: 1rem;
+    text-align: left;
+    opacity: 0;
+    transform: translateY(-6px);
+    pointer-events: none;
+    transition: var(--transition);
+}
+
+.download-options-panel.is-open {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.download-options-head h3 {
+    font-size: 1.05rem;
+    line-height: 1.3;
+}
+
+.download-options-head p {
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+    margin-top: 0.2rem;
+}
+
+.download-options-grid {
+    margin-top: 0.9rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+}
+
+.platform-option {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.8rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.platform-option:hover {
+    border-color: var(--accent-color);
+    box-shadow: 0 8px 18px rgba(0, 194, 255, 0.16);
+    transform: translateY(-1px);
+}
+
+.platform-icon {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.platform-meta {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.platform-meta strong {
+    line-height: 1.1;
+}
+
+.platform-meta small {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin-top: 0.2rem;
+}
+
+.platform-cta {
+    margin-left: auto;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.platform-option.is-disabled,
+.platform-option.is-disabled:hover {
+    opacity: 0.52;
+    cursor: not-allowed;
+    border-color: var(--border-color);
+    box-shadow: none;
+    transform: none;
+}
+
+.platform-option.is-disabled .platform-cta {
+    color: var(--text-secondary);
+}
+
 /* Buttons */
 .btn {
     display: inline-flex;
@@ -219,6 +326,21 @@ body {
 
 .btn.full-width {
     width: 100%;
+}
+
+@media (max-width: 700px) {
+    .hero-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .hero-actions .btn {
+        width: 100%;
+    }
+
+    .download-options-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Visuals */

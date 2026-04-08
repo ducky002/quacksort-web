@@ -38,10 +38,35 @@
                         <img src="resources/q_receive.png" alt="" class="btn-icon-img">
                         Receive Photos
                     </button>
-                    <a href="#" class="btn secondary large">
+                    <button id="btn-download-app" class="btn secondary large" type="button" aria-expanded="false" aria-controls="download-options-panel">
                         <img src="resources/q_download.png" alt="" class="btn-icon-img">
                         Download App
-                    </a>
+                    </button>
+                </div>
+
+                <div id="download-options-panel" class="download-options-panel" aria-hidden="true">
+                    <div class="download-options-head">
+                        <h3>Choose Your Platform</h3>
+                        <p>Download the latest QuackSort desktop app.</p>
+                    </div>
+                    <div class="download-options-grid">
+                        <a class="platform-option" href="https://github.com/ducky002/quacksort-web/releases/download/v1.0.0/QuackSort-Installer.exe" target="_blank" rel="noopener noreferrer">
+                            <img src="resources/windows.png" alt="Windows" class="platform-icon">
+                            <span class="platform-meta">
+                                <strong>Windows</strong>
+                                <small>Available now</small>
+                            </span>
+                            <span class="platform-cta">Download</span>
+                        </a>
+                        <button class="platform-option is-disabled" type="button" disabled aria-disabled="true">
+                            <img src="resources/mac.png" alt="Mac" class="platform-icon">
+                            <span class="platform-meta">
+                                <strong>macOS</strong>
+                                <small>Coming soon</small>
+                            </span>
+                            <span class="platform-cta">Soon</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
