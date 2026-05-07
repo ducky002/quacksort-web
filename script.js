@@ -240,8 +240,9 @@ if (dropZone) {
 }
 
 function handleFile(file) {
-    if (!file.type.startsWith('image/')) {
-        alert('Please upload an image file.');
+    const validation = validateUploadFile(file);
+    if (!validation.valid) {
+        alert(validation.error);
         return;
     }
     const reader = new FileReader();
@@ -252,6 +253,32 @@ function handleFile(file) {
         if (uploadOptions) uploadOptions.style.display = 'none';
     };
     reader.readAsDataURL(file);
+}
+
+function isValidNamePart(value) {
+    return /^[A-Za-z0-9]+$/.test(value || '');
+}
+
+function isStrongEmail(email) {
+    if (!email) return true;
+    if (email.length > 254) return false;
+    return /^(?=.{1,64}@)(?=.{6,254}$)[A-Za-z0-9](?:[A-Za-z0-9._%+-]{0,62}[A-Za-z0-9])?@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+$/.test(email);
+}
+
+function validateUploadFile(file) {
+    if (!file) {
+        return { valid: false, error: 'Please select a JPG or PNG image.' };
+    }
+
+    const fileName = (file.name || '').toLowerCase();
+    const isPng = file.type === 'image/png' || fileName.endsWith('.png');
+    const isJpeg = file.type === 'image/jpeg' || fileName.endsWith('.jpg') || fileName.endsWith('.jpeg');
+
+    if (!isPng && !isJpeg) {
+        return { valid: false, error: 'Only JPG and PNG files are allowed.' };
+    }
+
+    return { valid: true, extension: isPng ? 'png' : 'jpg' };
 }
 
 if (removeFileBtn) {
@@ -288,10 +315,23 @@ if (registrationForm) {
                 throw new Error('First name, last name, event code, and photo are required');
             }
 
+            if (!isValidNamePart(f_name) || !isValidNamePart(l_name)) {
+                throw new Error('First name and last name may only contain letters and numbers, with no spaces or special characters.');
+            }
+
+            if (!isStrongEmail(email)) {
+                throw new Error('Please enter a valid email address.');
+            }
+
+            const fileValidation = validateUploadFile(file);
+            if (!fileValidation.valid) {
+                throw new Error(fileValidation.error);
+            }
+
             showStatus('Uploading your face photo...', '');
 
             // 1. Upload Image to Supabase Storage
-            const fullName = `${f_name} ${l_name}`;
+            const fullName = `${f_name}${l_name}`;
             const imageUrl = await uploadFaceImage(file, eventCode, fullName);
 
             showStatus('Saving your registration...', '');

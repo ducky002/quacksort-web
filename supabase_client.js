@@ -9,6 +9,25 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+function sanitizeStorageName(value) {
+    const sanitized = (value || '').replace(/[^A-Za-z0-9]/g, '').toLowerCase();
+    if (!sanitized) {
+        throw new Error('Name must contain only letters and numbers.');
+    }
+    return sanitized;
+}
+
+function getAllowedImageExtension(imageFile) {
+    const fileName = (imageFile?.name || '').toLowerCase();
+    if (imageFile?.type === 'image/png' || fileName.endsWith('.png')) {
+        return 'png';
+    }
+    if (imageFile?.type === 'image/jpeg' || fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) {
+        return 'jpg';
+    }
+    throw new Error('Only JPG and PNG files are allowed.');
+}
+
 /**
  * Upload face image to Supabase storage
  * @param {File} imageFile - The image file from form upload
@@ -18,17 +37,18 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
  */
 async function uploadFaceImage(imageFile, eventCode, personName) {
     try {
-        // Create unique filename
-        const timestamp = Date.now();
-        const sanitizedName = personName.replace(/\s+/g, '_').toLowerCase();
-        const fileName = `${eventCode}/${sanitizedName}_${timestamp}.jpg`;
+        const sanitizedName = sanitizeStorageName(personName);
+        const sanitizedEventCode = sanitizeStorageName(eventCode);
+        const extension = getAllowedImageExtension(imageFile);
+        const fileName = `${sanitizedEventCode}/${sanitizedName}.${extension}`;
 
         // Upload to storage bucket
         const { data, error } = await supabaseClient.storage
             .from('face-uploads')
             .upload(fileName, imageFile, {
                 cacheControl: '3600',
-                upsert: false
+                upsert: true,
+                contentType: extension === 'png' ? 'image/png' : 'image/jpeg'
             });
 
         if (error) {
@@ -59,6 +79,9 @@ async function submitEnrollment(enrollmentData) {
             .insert([enrollmentData]);
 
         if (error) {
+            if (error.code === '23503' || /foreign key/i.test(error.message || '')) {
+                throw new Error('No event registered for this event code. Please contact the event owner.');
+            }
             throw new Error(`Database error: ${error.message}`);
         }
 
