@@ -12,7 +12,6 @@
 </head>
 
 <body>
-    <div class="background-blob"></div>
     <div class="web-container">
         <header class="web-nav">
             <div class="logo-area">
@@ -29,48 +28,69 @@
 
         <main class="hero-section">
             <div class="hero-content">
-                <h1 class="hero-title">Organize your memories with <span class="highlight">complete ownership</span>.</h1>
+                <h1 class="hero-title">Organize your memories with<br class="hero-title-break"> <span class="highlight">complete ownership</span>.</h1>
                 <p class="hero-subtitle">An advanced, privacy-first event management and sorting app. Fast, private and smart.
                 </p>
-
                 <div class="hero-actions">
-                    <button id="btn-receive-photos" class="btn primary large">
+                    <button id="btn-receive-photos" class="btn primary large" type="button">
                         <img src="resources/q_receive.png" alt="" class="btn-icon-img">
                         Receive Photos
                     </button>
-                    <button id="btn-download-app" class="btn secondary large" type="button" aria-expanded="false" aria-controls="download-options-panel">
-                        <img src="resources/q_download.png" alt="" class="btn-icon-img">
-                        Download App
+                    <button id="btn-book-demo" class="btn secondary large" type="button" aria-haspopup="dialog" aria-controls="booking-modal">
+                        Book a demo
                     </button>
                 </div>
-
-                <div id="download-options-panel" class="download-options-panel" aria-hidden="true">
-                    <div class="download-options-head">
-                        <h3>Choose Your Platform</h3>
-                        <p>Download the latest QuackSort desktop app.</p>
-                    </div>
-                    <div class="download-options-grid">
-                        <a class="platform-option" href="https://github.com/ducky002/quacksort-web/releases/download/v1.0.0/QuackSort-Installer.exe" target="_blank" rel="noopener noreferrer">
-                            <img src="resources/windows.png" alt="Windows" class="platform-icon">
-                            <span class="platform-meta">
-                                <strong>Windows</strong>
-                                <small>Available now</small>
-                            </span>
-                            <span class="platform-cta">Download</span>
-                        </a>
-                        <button class="platform-option is-disabled" type="button" disabled aria-disabled="true">
-                            <img src="resources/mac.png" alt="Mac" class="platform-icon">
-                            <span class="platform-meta">
-                                <strong>macOS</strong>
-                                <small>Coming soon</small>
-                            </span>
-                            <span class="platform-cta">Soon</span>
-                        </button>
-                    </div>
-                </div>
             </div>
-
+            <figure class="hero-product-shot">
+                <img src="resources/dashboard-preview.webp" alt="QuackSort desktop app showing an event workspace with enrolled people and sorted photos">
+            </figure>
         </main>
+
+        <section id="booking-modal" class="booking-modal" aria-hidden="true">
+            <div class="booking-card" role="dialog" aria-modal="true" aria-labelledby="booking-title" aria-describedby="booking-description">
+                <div class="booking-heading">
+                    <div>
+                        <h2 id="booking-title">Book a QuackSort demo</h2>
+                        <p id="booking-description">Tell us a little about your workflow and we will be in touch.</p>
+                    </div>
+                    <button id="close-booking-btn" class="booking-close" type="button" aria-label="Close booking form">&times;</button>
+                </div>
+                <p id="booking-setup-message" class="booking-setup-message" role="status" hidden></p>
+                <form id="booking-form" class="booking-form" target="booking-response-frame" method="post" autocomplete="on">
+                    <div class="booking-fields">
+                        <div class="booking-field">
+                            <label for="booking-name">Name</label>
+                            <input id="booking-name" name="name" type="text" maxlength="100" autocomplete="name" required>
+                        </div>
+                        <div class="booking-field">
+                            <label for="booking-email">Email</label>
+                            <input id="booking-email" name="email" type="email" maxlength="254" autocomplete="email" required>
+                        </div>
+                        <div class="booking-field">
+                            <label for="booking-profession">Profession</label>
+                            <input id="booking-profession" name="profession" type="text" maxlength="100" required>
+                        </div>
+                        <div class="booking-field">
+                            <label for="booking-current-tool">What are you using now?</label>
+                            <textarea id="booking-current-tool" name="currentTool" maxlength="500" rows="3" required></textarea>
+                        </div>
+                        <div class="booking-field">
+                            <label for="booking-demo-date">Preferred demo date</label>
+                            <input id="booking-demo-date" name="demoDate" type="date" required>
+                        </div>
+                    </div>
+                    <div class="booking-trap" aria-hidden="true">
+                        <label for="booking-website">Leave this field empty</label>
+                        <input id="booking-website" name="website" type="text" tabindex="-1" autocomplete="off">
+                    </div>
+                    <input type="hidden" name="requestId" value="">
+                    <p id="booking-status" class="booking-status" role="status" aria-live="polite"></p>
+                    <button id="booking-submit" class="btn primary large booking-submit" type="submit">Send demo request</button>
+                    <p class="booking-privacy">Your response will be stored in Google Forms.</p>
+                </form>
+                <iframe name="booking-response-frame" id="booking-response-frame" title="Form submission response" hidden></iframe>
+            </div>
+        </section>
 
         <section id="receive-section" class="receive-section" style="display: none;">
             <div class="modal-card">
@@ -111,12 +131,22 @@
                             QuackSort delivers core sorting capabilities on local devices, giving you stronger control
                             over your memories and reducing exposure to cloud privacy risks.
                         </p>
+                        <p>
+                            Demo request responses are collected and stored by Google Forms in the form owner's Google
+                            account. QuackSort does not receive or display those responses on this website.
+                        </p>
                     </article>
                 </div>
 
                 <button id="close-settings-btn" class="btn secondary settings-close-btn">Close</button>
             </div>
         </div>
+        <footer class="know-more-footer">
+            <a class="know-more-link" href="Quack.html">
+                <span>Know more about QuackSort</span>
+                <img src="resources/q_arrow.png" alt="" width="64" height="40">
+            </a>
+        </footer>
     </div>
 
     <script src="script.js"></script>

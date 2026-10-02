@@ -73,42 +73,143 @@ const btnCapture = document.getElementById('btn-capture');
 const btnCloseCamera = document.getElementById('btn-close-camera');
 const cameraCanvas = document.getElementById('camera-canvas');
 const uploadOptions = document.querySelector('.upload-options');
-const downloadBtn = document.getElementById('btn-download-app');
-const downloadPanel = document.getElementById('download-options-panel');
+const bookingEndpoint = 'https://script.google.com/macros/s/AKfycbzoExZmzF2GS9VAHW0GNsg7DjdRODcRtcVVEU-h93DlDNf6VGuZ6CDcK2jMor9vDYrs/exec';
+const bookingBtn = document.getElementById('btn-book-demo');
+const bookingModal = document.getElementById('booking-modal');
+const bookingForm = document.getElementById('booking-form');
+const bookingSetupMessage = document.getElementById('booking-setup-message');
+const bookingSubmit = document.getElementById('booking-submit');
+const bookingStatus = document.getElementById('booking-status');
+const bookingResponseFrame = document.getElementById('booking-response-frame');
+let activeBookingRequest = '';
 
-// ── UI Handlers: Download Platform Picker ────────────────────────────────
-function closeDownloadPanel() {
-    if (!downloadPanel || !downloadBtn) return;
-    downloadPanel.classList.remove('is-open');
-    downloadPanel.setAttribute('aria-hidden', 'true');
-    downloadBtn.setAttribute('aria-expanded', 'false');
+function closeBookingModal() {
+    if (!bookingModal) return;
+    bookingModal.classList.remove('is-open');
+    bookingModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('booking-open');
+    if (bookingBtn) bookingBtn.focus();
 }
 
-if (downloadBtn && downloadPanel) {
-    downloadBtn.addEventListener('click', () => {
-        const willOpen = !downloadPanel.classList.contains('is-open');
-        if (willOpen) {
-            downloadPanel.classList.add('is-open');
-            downloadPanel.setAttribute('aria-hidden', 'false');
-            downloadBtn.setAttribute('aria-expanded', 'true');
+function initializeBooking() {
+    if (!bookingBtn || !bookingModal || !bookingForm || !bookingSetupMessage || !bookingSubmit || !bookingResponseFrame) return;
+
+    let endpointUrl = null;
+    try {
+        endpointUrl = new URL(bookingEndpoint);
+    } catch (error) {
+        endpointUrl = null;
+    }
+
+    const endpointIsValid = endpointUrl
+        && endpointUrl.origin === 'https://script.google.com'
+        && /^\/macros\/s\/[^/]+\/exec$/.test(endpointUrl.pathname);
+
+    if (!endpointIsValid) {
+        bookingSetupMessage.hidden = false;
+        bookingSetupMessage.textContent = 'The form backend must be updated and connected before requests can be sent.';
+        bookingSubmit.disabled = true;
+    } else {
+        bookingForm.action = endpointUrl.href;
+        bookingSetupMessage.hidden = true;
+        bookingSubmit.disabled = false;
+    }
+
+    const demoDate = document.getElementById('booking-demo-date');
+    const today = new Date();
+    demoDate.min = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+
+    bookingForm.addEventListener('submit', (event) => {
+        if (!endpointIsValid) {
+            event.preventDefault();
+            setBookingStatus('The form is not connected yet.', 'error');
             return;
         }
 
-        closeDownloadPanel();
+        const requestId = Array.from(crypto.getRandomValues(new Uint8Array(16)), value => value.toString(16).padStart(2, '0')).join('');
+        activeBookingRequest = requestId;
+        bookingForm.elements.requestId.value = requestId;
+        bookingSubmit.disabled = true;
+        bookingSubmit.textContent = 'Sending...';
+        setBookingStatus('Submitting your response...', '');
+
+        const handleResult = (messageEvent) => {
+            const trustedOrigin = messageEvent.origin === 'https://script.google.com' || /^https:\/\/[a-z0-9.-]+\.googleusercontent\.com$/i.test(messageEvent.origin);
+            if (messageEvent.source !== bookingResponseFrame.contentWindow || !trustedOrigin || !messageEvent.data || messageEvent.data.type !== 'quacksort-booking-result' || messageEvent.data.requestId !== requestId) return;
+            window.removeEventListener('message', handleResult);
+            activeBookingRequest = '';
+            bookingSubmit.disabled = false;
+            bookingSubmit.textContent = 'Send demo request';
+            if (messageEvent.data.success) {
+                setBookingStatus('Thanks. Your response was saved.', 'success');
+                bookingForm.reset();
+            } else {
+                setBookingStatus(messageEvent.data.message || 'We could not save your response. Please try again.', 'error');
+            }
+        };
+        window.addEventListener('message', handleResult);
+        window.setTimeout(() => {
+            if (activeBookingRequest !== requestId) return;
+            activeBookingRequest = '';
+            window.removeEventListener('message', handleResult);
+            bookingSubmit.disabled = false;
+            bookingSubmit.textContent = 'Send demo request';
+            setBookingStatus('We could not confirm the response. Please try again.', 'error');
+        }, 20000);
     });
 
-    document.addEventListener('click', (e) => {
-        if (!downloadPanel.classList.contains('is-open')) return;
-        if (downloadPanel.contains(e.target) || downloadBtn.contains(e.target)) return;
-        closeDownloadPanel();
+    bookingBtn.addEventListener('click', () => {
+        bookingModal.classList.add('is-open');
+        bookingModal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('booking-open');
+        document.getElementById('close-booking-btn').focus();
     });
 
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            closeDownloadPanel();
+    document.getElementById('close-booking-btn').addEventListener('click', closeBookingModal);
+    bookingModal.addEventListener('click', (event) => {
+        if (event.target === bookingModal) closeBookingModal();
+    });
+    document.addEventListener('keydown', (event) => {
+        if (!bookingModal.classList.contains('is-open')) return;
+        if (event.key === 'Escape') {
+            closeBookingModal();
+            return;
+        }
+        if (event.key !== 'Tab') return;
+
+        const focusable = bookingModal.querySelectorAll('button:not(:disabled), input:not(:disabled):not([type="hidden"]):not([tabindex="-1"]), select:not(:disabled), textarea:not(:disabled)');
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
         }
     });
 }
+
+function setBookingStatus(message, type) {
+    if (!bookingStatus) return;
+    bookingStatus.textContent = message;
+    bookingStatus.className = `booking-status${type ? ` ${type}` : ''}`;
+}
+
+initializeBooking();
+
+function initializeKnowMoreDock() {
+    const knowMoreLink = document.querySelector('.know-more-link');
+    const knowMoreFooter = document.querySelector('.know-more-footer');
+    if (!knowMoreLink || !knowMoreFooter || !('IntersectionObserver' in window)) return;
+
+    const footerObserver = new IntersectionObserver(([entry]) => {
+        knowMoreLink.classList.toggle('is-settled', entry.isIntersecting);
+    }, { threshold: 0.9 });
+    footerObserver.observe(knowMoreFooter);
+}
+
+initializeKnowMoreDock();
 
 // ── UI Handlers: Receive Modal ────────────────────────────────────────────
 if (receiveBtn) {
