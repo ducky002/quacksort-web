@@ -73,7 +73,7 @@ const btnCapture = document.getElementById('btn-capture');
 const btnCloseCamera = document.getElementById('btn-close-camera');
 const cameraCanvas = document.getElementById('camera-canvas');
 const uploadOptions = document.querySelector('.upload-options');
-const bookingEndpoint = 'https://script.google.com/macros/s/AKfycbzoExZmzF2GS9VAHW0GNsg7DjdRODcRtcVVEU-h93DlDNf6VGuZ6CDcK2jMor9vDYrs/exec';
+const bookingEndpoint = 'https://script.google.com/macros/s/AKfycbx4gf9JKibCo6uR6L1Y-oYIpiDz_njCszEaBwcoP3HPSYRr_ih-WGcGbgRwGIujWuJs/exec';
 const bookingBtn = document.getElementById('btn-book-demo');
 const bookingModal = document.getElementById('booking-modal');
 const bookingForm = document.getElementById('booking-form');
@@ -134,8 +134,8 @@ function initializeBooking() {
         setBookingStatus('Submitting your response...', '');
 
         const handleResult = (messageEvent) => {
-            const trustedOrigin = messageEvent.origin === 'https://script.google.com' || /^https:\/\/[a-z0-9.-]+\.googleusercontent\.com$/i.test(messageEvent.origin);
-            if (messageEvent.source !== bookingResponseFrame.contentWindow || !trustedOrigin || !messageEvent.data || messageEvent.data.type !== 'quacksort-booking-result' || messageEvent.data.requestId !== requestId) return;
+            const trustedOrigin = messageEvent.origin === 'https://script.google.com' || /^https:\/\/(?:[a-z0-9.-]+-)?script\.googleusercontent\.com$/i.test(messageEvent.origin);
+            if (!trustedOrigin || !messageEvent.data || messageEvent.data.type !== 'quacksort-booking-result' || messageEvent.data.requestId !== requestId) return;
             window.removeEventListener('message', handleResult);
             activeBookingRequest = '';
             bookingSubmit.disabled = false;
