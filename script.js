@@ -197,6 +197,9 @@ function setBookingStatus(message, type) {
 }
 
 initializeBooking();
+if (new URLSearchParams(window.location.search).get('demo') === '1' && bookingBtn) {
+    bookingBtn.click();
+}
 
 function initializeKnowMoreDock() {
     const knowMoreLink = document.querySelector('.know-more-link');
