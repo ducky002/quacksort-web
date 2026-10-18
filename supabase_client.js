@@ -40,14 +40,15 @@ async function uploadFaceImage(imageFile, eventCode, personName) {
         const sanitizedName = sanitizeStorageName(personName);
         const sanitizedEventCode = sanitizeStorageName(eventCode);
         const extension = getAllowedImageExtension(imageFile);
-        const fileName = `${sanitizedEventCode}/${sanitizedName}.${extension}`;
+        const uploadId = crypto.randomUUID();
+        const fileName = `${sanitizedEventCode}/${sanitizedName}-${uploadId}.${extension}`;
 
-        // Upload to storage bucket
+        // Each submission gets its own object; never overwrite an earlier photo.
         const { data, error } = await supabaseClient.storage
             .from('face-uploads')
             .upload(fileName, imageFile, {
                 cacheControl: '3600',
-                upsert: true,
+                upsert: false,
                 contentType: extension === 'png' ? 'image/png' : 'image/jpeg'
             });
 
