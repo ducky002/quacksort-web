@@ -133,6 +133,20 @@ body {
     max-width: 620px;
 }
 
+.hero-release-notice {
+    display: inline-block;
+    max-width: 100%;
+    margin-top: 1.1rem;
+    padding: 0.65rem 1.2rem;
+    border: 1px solid var(--duck-color);
+    border-radius: 999px;
+    background: var(--duck-color);
+    color: var(--primary-color);
+    font-size: 1rem;
+    font-weight: 700;
+    text-wrap: balance;
+}
+
 .hero-actions {
     display: flex;
     align-items: center;
