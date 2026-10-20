@@ -1,6 +1,21 @@
 // Supabase Configuration - Now handled by supabase_client.js
 // The supabase client is initialized globally in supabase_client.js
 
+// Close the download choices when clicking or tapping outside the menu.
+document.addEventListener('click', (event) => {
+    document.querySelectorAll('.download-menu[open]').forEach((menu) => {
+        if (!menu.contains(event.target)) menu.open = false;
+    });
+});
+
+document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    document.querySelectorAll('.download-menu[open]').forEach((menu) => {
+        menu.open = false;
+        menu.querySelector('summary')?.focus();
+    });
+});
+
 // ── Settings Helpers ───────────────────────────────────────────────────────
 function initializeSettings() {
     const settingsBtn = document.getElementById('settings-btn');

@@ -108,6 +108,10 @@ body {
     font-weight: 500;
     cursor: pointer;
     text-align: center;
+    width: 100%;
+    min-height: 44px;
+    line-height: 1.4;
+    appearance: none;
 }
 
 /* Hero Section */
@@ -149,18 +153,70 @@ body {
     max-width: 620px;
 }
 
-.hero-release-notice {
-    display: inline-block;
-    max-width: 100%;
-    margin: 0;
-    padding: 0.65rem 1.2rem;
-    border: 1px solid var(--duck-color);
-    border-radius: 999px;
-    background: var(--duck-color);
-    color: var(--primary-color);
-    font-size: 1rem;
-    font-weight: 700;
-    text-wrap: balance;
+.download-menu {
+    position: relative;
+}
+
+.download-toggle {
+    list-style: none;
+}
+
+.download-toggle::-webkit-details-marker {
+    display: none;
+}
+
+.download-toggle:focus-visible {
+    outline: 3px solid var(--accent-color);
+    outline-offset: 4px;
+}
+
+.download-options {
+    position: absolute;
+    top: calc(100% + 0.7rem);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem;
+    width: 220px;
+    max-width: calc(100vw - 2rem);
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    background: var(--card-bg);
+    box-shadow: 0 10px 28px var(--shadow-color);
+}
+
+.download-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.55rem 0.35rem;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: not-allowed;
+}
+
+.download-option img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    filter: grayscale(1);
+    opacity: 0.5;
+}
+
+.download-option small {
+    display: block;
+    margin-top: 0.2rem;
+    font-size: 0.7rem;
+    font-weight: 400;
 }
 
 .hero-actions {
@@ -845,6 +901,7 @@ body.booking-open {
 
     .nav-action-links {
         gap: 0.4rem;
+        align-items: stretch;
     }
 
     .nav-action {
@@ -899,6 +956,19 @@ body.booking-open {
     .hero-actions {
         flex-direction: column;
         width: 100%;
+    }
+
+    .download-menu {
+        width: 100%;
+        max-width: 420px;
+    }
+
+    .download-options {
+        position: static;
+        transform: none;
+        width: min(220px, 100%);
+        max-width: none;
+        margin: 0.5rem auto 0;
     }
 
     .btn.large {
