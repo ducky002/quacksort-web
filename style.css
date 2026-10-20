@@ -94,6 +94,22 @@ body {
     white-space: nowrap;
 }
 
+.nav-action-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.7rem;
+}
+
+.nav-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+}
+
 /* Hero Section */
 .hero-section {
     display: block;
@@ -136,7 +152,7 @@ body {
 .hero-release-notice {
     display: inline-block;
     max-width: 100%;
-    margin-top: 1.1rem;
+    margin: 0;
     padding: 0.65rem 1.2rem;
     border: 1px solid var(--duck-color);
     border-radius: 999px;
@@ -805,6 +821,10 @@ body.booking-open {
 }
 
 @media (max-width: 600px) {
+    .web-container {
+        padding-inline: 1rem;
+    }
+
     .web-nav {
         flex-direction: column;
         align-items: center;
@@ -817,6 +837,20 @@ body.booking-open {
         order: 2;
         justify-content: center;
         margin-left: 0;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        width: 100%;
+        gap: 0.4rem;
+    }
+
+    .nav-action-links {
+        gap: 0.4rem;
+    }
+
+    .nav-action {
+        min-width: 0;
+        padding: 0.55rem 0.35rem;
+        font-size: clamp(0.7rem, 2.7vw, 0.95rem);
     }
 
     .logo-area {
