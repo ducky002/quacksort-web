@@ -212,6 +212,27 @@ body {
     opacity: 0.5;
 }
 
+.download-option[data-download-url]:not([data-download-url=""]) {
+    color: var(--text-primary);
+    background: var(--card-bg);
+    border-color: var(--accent-color);
+    cursor: pointer;
+}
+
+.download-option[data-download-url]:not([data-download-url=""]) img {
+    filter: none;
+    opacity: 1;
+}
+
+.download-option[data-download-url]:not([data-download-url=""]):hover {
+    background: var(--bg-secondary);
+}
+
+.download-option:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 3px;
+}
+
 .download-option small {
     display: block;
     margin-top: 0.2rem;
