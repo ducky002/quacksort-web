@@ -42,11 +42,11 @@
                             Download
                         </summary>
                         <div class="download-options" aria-label="App downloads">
-                            <button class="download-option" type="button" disabled>
+                            <button class="download-option" type="button" data-download-platform="Windows" data-download-url="https://github.com/ducky002/quacksort-web/releases/download/v1.0.0/QuackSort-Installer.exe" aria-haspopup="dialog" aria-controls="download-notice">
                                 <img src="resources/windows.png" alt="">
                                 <span>Windows<small>Coming soon</small></span>
                             </button>
-                            <button class="download-option" type="button" disabled>
+                            <button class="download-option" type="button" data-download-platform="Mac" data-download-url="" aria-haspopup="dialog" aria-controls="download-notice">
                                 <img src="resources/mac.png" alt="">
                                 <span>Mac<small>Coming soon</small></span>
                             </button>
@@ -56,6 +56,9 @@
                         Book a demo
                     </button>
                 </div>
+                <p class="download-access-note">Free &middot; Activation required &middot; Access subject to approval<br>
+                    <a href="download-notice.html">Access and activation details</a>
+                </p>
             </div>
             <figure class="hero-product-shot">
                 <img src="resources/homepage.webp" alt="QuackSort app homepage with Group Cards in the navigation">
@@ -165,6 +168,21 @@
         </footer>
     </div>
 
+    <dialog id="download-notice" class="download-notice-dialog" aria-labelledby="download-notice-title" aria-describedby="download-notice-description">
+        <h2 id="download-notice-title">Before you download</h2>
+        <div id="download-notice-description">
+            <p>QuackSort is free to download and use, but requires Device Activation. Downloading the app does not automatically grant access. Access is approved based on your intended use case.</p>
+            <p>After opening the app, send us the activation request code and a brief, one-line description of your intended use. This helps us understand your needs and improve the app. Once approved, you will receive an activation code.</p>
+            <p>Activation does not require your photos or give us access to your files. Cloud enrollment and sharing features involve separate data transfers.</p>
+        </div>
+        <p><a href="download-notice.html" target="_blank" rel="noopener">Access and activation details (opens in a new tab)</a></p>
+        <p id="download-availability" role="status"></p>
+        <div class="download-notice-actions">
+            <button id="cancel-download" class="btn secondary" type="button" autofocus>Cancel</button>
+            <a id="confirm-download" class="btn primary" hidden>Continue to download</a>
+        </div>
+    </dialog>
+    <script src="download-notice.js"></script>
     <script src="script.js"></script>
 </body>
 
